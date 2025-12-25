@@ -150,5 +150,16 @@ services:
       - INFERENCE_URL=http://inference:8004
       - PROCESS_CONFIG=/app/config/loan_process.yaml
 
+  # Demo Dashboard UI
+  demo-dashboard:
+    build:
+      context: ./demo
+    ports:
+      - "8088:8088"
+    depends_on:
+      - inference
+      - sla-monitor
+      - data-simulator
+
 volumes:
   clickhouse_data:

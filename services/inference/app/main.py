@@ -1,10 +1,20 @@
 import os
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel as PydanticModel
 from typing import Dict, Any, Optional
 from app.registry import ModelRegistry
 
 app = FastAPI(title="Inference Service")
+
+# Enable CORS for demo UI
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Initialize registry
 REGISTRY_PATH = os.getenv("MODEL_REGISTRY_PATH", "/app/weights/registry.yaml")
@@ -75,7 +85,26 @@ def predict_routing(features: Dict[str, Any]):
     if not registry:
         raise HTTPException(status_code=503, detail="Registry not loaded")
     result = registry.predict("routing_predictor", features)
-    return {"next_activity": result}
+    
+    # Routing model returns probability array for each class
+    # Get the predicted class (argmax) and decode to activity name
+    import numpy as np
+    ACTIVITY_NAMES = ["Submit Application", "Check Credit", "Manual Review", 
+                      "Quality Assurance", "Approve", "Reject"]
+    
+    if hasattr(result, '__len__') and len(result) > 1:
+        # Multi-class: result is array of probabilities
+        predicted_class = int(np.argmax(result))
+        predicted_activity = ACTIVITY_NAMES[predicted_class] if predicted_class < len(ACTIVITY_NAMES) else f"Class_{predicted_class}"
+        probabilities = [float(p) for p in result]
+        return {
+            "next_activity": predicted_activity,
+            "predicted_class": predicted_class,
+            "probabilities": probabilities
+        }
+    else:
+        # Single value
+        return {"next_activity": int(result[0]) if hasattr(result, '__getitem__') else int(result)}
 
 @app.post("/predict/sla_breach")
 def predict_sla_breach(features: Dict[str, Any]):

@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI, Response
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from typing import Optional
 import asyncio
@@ -11,6 +12,15 @@ from app.metrics import get_metrics, get_content_type, update_queue_metrics, upd
 from app.consumer import EventConsumer
 
 app = FastAPI(title="SLA Monitor Service")
+
+# Enable CORS for demo UI
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Initialize components
 monitor = WIPMonitor()

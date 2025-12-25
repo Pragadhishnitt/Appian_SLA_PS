@@ -1,10 +1,21 @@
 from fastapi import FastAPI, BackgroundTasks
+from fastapi.middleware.cors import CORSMiddleware
 from app.generator import DataGenerator
 from app.kafka_producer import EventProducer
 from app.schemas import GenerationRequest
 from datetime import datetime
 
 app = FastAPI(title="Appian Data Simulator")
+
+# Enable CORS for demo UI
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 generator = DataGenerator()
 producer = EventProducer()
 

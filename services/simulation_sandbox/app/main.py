@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
 from dataclasses import asdict
@@ -10,6 +11,15 @@ from app.scenario import ScenarioBuilder, Scenario
 from app.comparator import ScenarioComparator
 
 app = FastAPI(title="Simulation Sandbox Service")
+
+# Enable CORS for demo UI
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Initialize components
 state_manager = StateManager()
