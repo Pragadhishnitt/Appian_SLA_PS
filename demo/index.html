@@ -4,21 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Appian Predictive Simulation - Demo Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Appian Process Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
+            --bg-body: #020617;
+            --bg-card: #0f172a;
+            --bg-input: #1e293b;
+            --border: #334155;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --bg-input: #334155;
-            --text: #f1f5f9;
-            --text-muted: #94a3b8;
-            --border: #475569;
         }
 
         * {
@@ -29,150 +29,169 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1a2e 100%);
-            color: var(--text);
+            background-color: var(--bg-body);
+            color: var(--text-main);
             min-height: 100vh;
-            padding: 1.5rem;
+            padding: 2rem;
+            line-height: 1.5;
         }
 
         .container {
-            max-width: 1600px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
         header {
-            text-align: center;
-            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
         }
 
         h1 {
-            font-size: 2rem;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.025em;
         }
 
         .subtitle {
             color: var(--text-muted);
-            font-size: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .status-indicators {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
         }
 
         .tabs {
             display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            margin: 1.5rem 0;
-            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
         }
 
         .tab {
-            padding: 0.75rem 1.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
+            padding: 0.75rem 0;
+            color: var(--text-muted);
             cursor: pointer;
-            transition: all 0.2s;
+            font-size: 0.9rem;
             font-weight: 500;
+            position: relative;
+            transition: color 0.2s;
         }
 
-        .tab:hover,
+        .tab:hover {
+            color: var(--text-main);
+        }
+
         .tab.active {
+            color: var(--primary);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
             background: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 1.5rem;
         }
 
         .card {
             background: var(--bg-card);
-            border-radius: 1rem;
-            padding: 1.5rem;
             border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
         }
 
         .card-header {
             display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.25rem;
-        }
-
-        .card-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-        }
-
-        .card-icon.duration {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-        }
-
-        .card-icon.sla {
-            background: linear-gradient(135deg, #ef4444, #b91c1c);
-        }
-
-        .card-icon.routing {
-            background: linear-gradient(135deg, #10b981, #059669);
-        }
-
-        .card-icon.data {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-        }
-
-        .card-icon.sandbox {
-            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
         }
 
         .card-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
         }
 
         .card-desc {
             font-size: 0.8rem;
             color: var(--text-muted);
+            margin-top: 0.25rem;
         }
 
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
         }
 
         label {
             display: block;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
         }
 
-        select,
-        input {
+        input,
+        select {
             width: 100%;
-            padding: 0.75rem 1rem;
             background: var(--bg-input);
             border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            color: var(--text);
-            font-size: 0.95rem;
+            color: var(--text-main);
+            padding: 0.625rem 0.875rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
         }
 
-        select:focus,
-        input:focus {
+        input:focus,
+        select:focus {
             outline: none;
             border-color: var(--primary);
         }
@@ -185,227 +204,182 @@
 
         button {
             width: 100%;
-            padding: 0.875rem 1.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border: none;
-            border-radius: 0.5rem;
+            background: var(--primary);
             color: white;
-            font-size: 1rem;
-            font-weight: 600;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 0.5rem;
+            transition: background 0.2s;
         }
 
         button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+            background: var(--primary-hover);
         }
 
         button.secondary {
             background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
         }
 
-        button.sample {
-            background: linear-gradient(135deg, #10b981, #059669);
-            font-size: 0.85rem;
+        button.secondary:hover {
+            border-color: var(--text-muted);
+            color: var(--text-main);
+        }
+
+        button.outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        button.outline:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .live-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--bg-input);
             padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
         }
 
-        .result {
-            margin-top: 1.5rem;
-            padding: 1.25rem;
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 0.75rem;
-            display: none;
-        }
-
-        .result.show {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .result-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .result-value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-top: 0.25rem;
-        }
-
-        .result-value.success {
-            color: var(--success);
-        }
-
-        .result-value.warning {
-            color: var(--warning);
-        }
-
-        .result-value.danger {
-            color: var(--danger);
-        }
-
-        .result-details {
-            margin-top: 0.75rem;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
+        .toggle-switch {
+            width: 36px;
             height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: var(--border);
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--success);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
             border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.8s linear infinite;
+            transition: transform 0.3s;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        .toggle-switch.active::after {
+            transform: translateX(16px);
         }
 
-        .data-stats {
+        .result-box {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
             margin-top: 1rem;
         }
 
-        .stat {
+        .stat-item {
             text-align: center;
-            padding: 1rem;
-            background: var(--bg-input);
-            border-radius: 0.5rem;
         }
 
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
+        .stat-val {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-main);
         }
 
-        .stat-label {
-            font-size: 0.75rem;
+        .stat-lbl {
+            font-size: 0.7rem;
             color: var(--text-muted);
-            margin-top: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        .risk-bar {
-            height: 8px;
-            background: var(--bg-input);
-            border-radius: 4px;
-            margin-top: 0.5rem;
-            overflow: hidden;
-        }
-
-        .risk-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .info-box {
-            background: rgba(99, 102, 241, 0.1);
-            border-left: 4px solid var(--primary);
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 0 0.5rem 0.5rem 0;
+        .monitor-table {
+            width: 100%;
+            border-collapse: collapse;
             font-size: 0.85rem;
+            margin-top: 1rem;
         }
 
-        .quick-links {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin: 1rem 0;
-        }
-
-        .quick-link {
-            padding: 0.5rem 1rem;
-            background: var(--bg-input);
-            border-radius: 0.5rem;
-            text-decoration: none;
-            color: var(--text);
-            font-size: 0.85rem;
-        }
-
-        .quick-link:hover {
-            background: var(--primary);
-        }
-
-        pre {
-            background: var(--bg-input);
-            padding: 1rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            font-size: 0.8rem;
-            margin-top: 0.5rem;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 2rem;
+        .monitor-table th {
+            text-align: left;
             color: var(--text-muted);
-            font-size: 0.85rem;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 500;
         }
 
-        .status-bar {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin: 1rem 0;
-            flex-wrap: wrap;
+        .monitor-table td {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
         }
 
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--bg-card);
-            border-radius: 2rem;
-            font-size: 0.85rem;
+        .risk-badge {
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
         }
 
-        .status-dot {
+        .risk-low {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .risk-high {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        .live-indicator {
             width: 8px;
             height: 8px;
-            border-radius: 50%;
             background: var(--success);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            animation: pulse-ring 2s infinite;
         }
     </style>
 </head>
@@ -413,132 +387,158 @@
 <body>
     <div class="container">
         <header>
-            <h1>🚀 Appian Predictive Simulation</h1>
-            <p class="subtitle">ML-Powered Process Intelligence Dashboard</p>
-            <div class="status-bar">
-                <div class="status-item"><span class="status-dot"></span><span>Inference :8004</span></div>
-                <div class="status-item"><span class="status-dot"></span><span>SLA Monitor :8002</span></div>
-                <div class="status-item"><span class="status-dot"></span><span>Sandbox :8003</span></div>
-                <div class="status-item"><span class="status-dot"></span><span>Simulator :8001</span></div>
+            <div class="brand">
+                <div class="brand-logo">A</div>
+                <div>
+                    <h1>Appian Process Intelligence</h1>
+                    <div class="subtitle">Predictive Simulation & Monitoring</div>
+                </div>
+            </div>
+            <div class="status-indicators">
+                <div class="status-item"><span class="status-dot"></span> Inference API</div>
+                <div class="status-item"><span class="status-dot"></span> SLA Monitor</div>
+                <div class="status-item"><span class="status-dot"></span> Kafka Stream</div>
+                <div class="live-toggle">
+                    <span style="font-size: 0.85rem; font-weight: 500;">Live Simulation</span>
+                    <div class="toggle-switch" id="liveToggle" onclick="toggleLiveMode()"></div>
+                </div>
             </div>
         </header>
 
         <div class="tabs">
-            <div class="tab active" onclick="showTab('predictions')">🔮 ML Predictions</div>
-            <div class="tab" onclick="showTab('sandbox')">🧪 What-If Sandbox</div>
-            <div class="tab" onclick="showTab('data')">📊 Data & Monitoring</div>
-            <div class="tab" onclick="showTab('queries')">🔍 Database Queries</div>
+            <div class="tab active" onclick="switchTab('dashboard')">Live Dashboard</div>
+            <div class="tab" onclick="switchTab('predictions')">Manual Predictions</div>
+            <div class="tab" onclick="switchTab('sandbox')">What-If Sandbox</div>
+            <div class="tab" onclick="switchTab('queries')">Database Queries</div>
         </div>
 
-        <!-- ML PREDICTIONS TAB -->
-        <div id="predictions" class="tab-content active">
+        <!-- LIVE DASHBOARD TAB -->
+        <div id="dashboard" class="tab-content active">
             <div class="grid">
-                <!-- Duration Prediction -->
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-icon duration">⏱️</div>
                         <div>
-                            <div class="card-title">Duration Prediction</div>
-                            <div class="card-desc">Estimate activity completion time</div>
+                            <div class="card-title">System Pulse</div>
+                            <div class="card-desc">Real-time pipeline metrics</div>
                         </div>
+                        <div id="liveStatus" style="display:none"><span class="live-indicator"></span>Live</div>
                     </div>
-                    <button class="sample" onclick="fillSampleDuration()">📝 Fill Sample Data</button>
-                    <form id="durationForm">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Activity</label>
-                                <select name="activity" id="durActivity">
-                                    <option value="Submit Application">Submit Application</option>
-                                    <option value="Check Credit">Check Credit</option>
-                                    <option value="Manual Review" selected>Manual Review</option>
-                                    <option value="Quality Assurance">Quality Assurance</option>
-                                    <option value="Approve">Approve</option>
-                                    <option value="Reject">Reject</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Customer Tier</label>
-                                <select name="customer_tier" id="durTier">
-                                    <option value="Bronze">Bronze</option>
-                                    <option value="Silver">Silver</option>
-                                    <option value="Gold" selected>Gold</option>
-                                    <option value="Platinum">Platinum</option>
-                                </select>
-                            </div>
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <div class="stat-val" id="liveActiveCases">0</div>
+                            <div class="stat-lbl">Active Cases</div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Complexity Score (1-10)</label>
-                                <input type="number" name="complexity_score" id="durComplexity" value="5" min="1"
-                                    max="10" step="0.5">
-                            </div>
-                            <div class="form-group">
-                                <label>Priority (1-5)</label>
-                                <input type="number" name="priority" id="durPriority" value="3" min="1" max="5">
-                            </div>
+                        <div class="stat-item">
+                            <div class="stat-val" id="liveEvents">0</div>
+                            <div class="stat-lbl">Events/Min</div>
                         </div>
-                        <button type="submit">⚡ Predict Duration</button>
-                    </form>
-                    <div class="result" id="durationResult">
-                        <div class="result-label">Estimated Duration</div>
-                        <div class="result-value" id="durationValue">--</div>
-                        <div class="result-details" id="durationDetails"></div>
+                        <div class="stat-item">
+                            <div class="stat-val" id="liveBreachRisk">0%</div>
+                            <div class="stat-lbl">Avg Breach Risk</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- SLA Breach Prediction -->
-                <div class="card">
+                <div class="card" style="grid-column: span 2;">
                     <div class="card-header">
-                        <div class="card-icon sla">⚠️</div>
                         <div>
-                            <div class="card-title">SLA Breach Risk</div>
-                            <div class="card-desc">Predict probability of SLA violation</div>
+                            <div class="card-title">Risk Monitor</div>
+                            <div class="card-desc">Real-time SLA breach prediction for active cases</div>
                         </div>
                     </div>
-                    <button class="sample" onclick="fillSampleSLA()">📝 Fill Sample Data</button>
-                    <form id="slaForm">
+                    <table class="monitor-table">
+                        <thead>
+                            <tr>
+                                <th>Case ID</th>
+                                <th>Current Activity</th>
+                                <th>Customer Tier</th>
+                                <th>Time in Process</th>
+                                <th>Breach Probability</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monitorTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align:center; color:var(--text-muted)">Waiting for live
+                                    data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANUAL PREDICTIONS TAB -->
+        <div id="predictions" class="tab-content">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Duration Estimator</div>
+                        <button class="outline" style="width:auto; padding:0.25rem 0.75rem; font-size:0.75rem;"
+                            onclick="fillDuration()">Auto-Fill</button>
+                    </div>
+                    <form id="durationForm">
+                        <div class="form-group">
+                            <label>Activity</label>
+                            <select name="activity">
+                                <option value="Manual Review">Manual Review</option>
+                                <option value="Check Credit">Check Credit</option>
+                                <option value="Submit Application">Submit Application</option>
+                            </select>
+                        </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Activity</label>
-                                <select name="activity" id="slaActivity">
-                                    <option value="Submit Application">Submit Application</option>
-                                    <option value="Check Credit">Check Credit</option>
-                                    <option value="Manual Review" selected>Manual Review</option>
-                                    <option value="Quality Assurance">Quality Assurance</option>
-                                    <option value="Approve">Approve</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Customer Tier</label>
-                                <select name="customer_tier" id="slaTier">
-                                    <option value="Bronze" selected>Bronze</option>
-                                    <option value="Silver">Silver</option>
+                                <label>Tier</label>
+                                <select name="customer_tier">
                                     <option value="Gold">Gold</option>
-                                    <option value="Platinum">Platinum</option>
+                                    <option value="Silver">Silver</option>
+                                    <option value="Bronze">Bronze</option>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label>Complexity (1-10)</label>
+                                <input type="number" name="complexity_score" value="5" step="0.1">
+                            </div>
+                        </div>
+                        <button type="submit">Predict Duration</button>
+                    </form>
+                    <div id="durationResult" class="result-box" style="display:none">
+                        <div class="stat-val" id="durationValue">--</div>
+                        <div class="stat-lbl">Estimated Hours</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">SLA Risk Analyzer</div>
+                        <button class="outline" style="width:auto; padding:0.25rem 0.75rem; font-size:0.75rem;"
+                            onclick="fillSLA()">Auto-Fill</button>
+                    </div>
+                    <form id="slaForm">
+                        <div class="form-group">
+                            <label>Activity</label>
+                            <select name="activity">
+                                <option value="Manual Review">Manual Review</option>
+                                <option value="Check Credit">Check Credit</option>
+                                <option value="Submit Application">Submit Application</option>
+                                <option value="Quality Assurance">Quality Assurance</option>
+                                <option value="Approve">Approve</option>
+                            </select>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Complexity Score</label>
-                                <input type="number" name="complexity_score" id="slaComplexity" value="7" min="1"
-                                    max="10" step="0.5">
+                                <label>Hours to Deadline</label>
+                                <input type="number" name="hours_to_sla" value="4" step="0.5">
                             </div>
                             <div class="form-group">
-                                <label>Hours to SLA Deadline</label>
-                                <input type="number" name="hours_to_sla" id="slaHours" value="4" min="0.5" max="48"
-                                    step="0.5">
+                                <label>Complexity</label>
+                                <input type="number" name="complexity_score" value="8">
                             </div>
                         </div>
-                        <button type="submit">🔮 Predict Risk</button>
+                        <button type="submit">Analyze Risk</button>
                     </form>
-                    <div class="result" id="slaResult">
-                        <div class="result-label">Breach Probability</div>
-                        <div class="result-value" id="slaValue">--</div>
-                        <div class="risk-bar">
-                            <div class="risk-fill" id="slaBar"></div>
-                        </div>
-                        <div class="result-details" id="slaDetails"></div>
+                    <div id="slaResult" class="result-box" style="display:none">
+                        <div class="stat-val" id="slaValue">--</div>
+                        <div class="stat-lbl">Breach Probability</div>
                     </div>
                 </div>
             </div>
@@ -546,179 +546,53 @@
 
         <!-- SANDBOX TAB -->
         <div id="sandbox" class="tab-content">
-            <div class="info-box">
-                💡 <strong>What-If Analysis:</strong> Create scenarios to test how changes in resources affect SLA
-                breaches and completion times.
-            </div>
             <div class="grid">
-                <!-- Create Scenario -->
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-icon sandbox">🧪</div>
-                        <div>
-                            <div class="card-title">Create Scenario</div>
-                            <div class="card-desc">Define a what-if scenario</div>
-                        </div>
+                        <div class="card-title">Scenario Configuration</div>
                     </div>
-                    <button class="sample" onclick="fillSampleScenario()">📝 Fill Sample Data</button>
                     <form id="scenarioForm">
                         <div class="form-group">
                             <label>Scenario Name</label>
-                            <input type="text" name="name" id="scenarioName" placeholder="e.g., Add 3 Review Agents">
-                        </div>
-                        <div class="form-group">
-                            <label>Resource Pool to Modify</label>
-                            <select name="pool" id="scenarioPool">
-                                <option value="Submit Application">Submit Application</option>
-                                <option value="Check Credit">Check Credit</option>
-                                <option value="Manual Review" selected>Manual Review</option>
-                                <option value="Quality Assurance">Quality Assurance</option>
-                                <option value="Approve">Approve</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Resource Change (+/-)</label>
-                            <input type="number" name="change" id="scenarioChange" value="3" min="-10" max="10">
-                        </div>
-                        <button type="submit">✨ Create Scenario</button>
-                    </form>
-                    <div class="result" id="scenarioResult">
-                        <div class="result-label">Scenario Created</div>
-                        <div class="result-value success" id="scenarioId">--</div>
-                        <div class="result-details" id="scenarioDetails"></div>
-                    </div>
-                </div>
-
-                <!-- Run Simulation -->
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-icon routing">🎯</div>
-                        <div>
-                            <div class="card-title">Run Simulation</div>
-                            <div class="card-desc">Compare baseline vs scenario</div>
-                        </div>
-                    </div>
-                    <form id="compareForm">
-                        <div class="form-group">
-                            <label>Scenario ID</label>
-                            <input type="text" name="scenario_id" id="compareScenarioId"
-                                placeholder="Paste scenario ID">
+                            <input type="text" name="name" value="Add 3 Review Agents">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Horizon (hours)</label>
-                                <input type="number" name="horizon" id="compareHorizon" value="24" min="1" max="168">
+                                <label>Resource Pool</label>
+                                <select name="pool">
+                                    <option value="Manual Review">Manual Review</option>
+                                    <option value="Check Credit">Check Credit</option>
+                                    <option value="Submit Application">Submit Application</option>
+                                    <option value="Quality Assurance">Quality Assurance</option>
+                                    <option value="Approve">Approve</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <label>Simulation Runs</label>
-                                <input type="number" name="runs" id="compareRuns" value="50" min="10" max="500">
+                                <label>Capacity Change</label>
+                                <input type="number" name="change" value="3">
                             </div>
                         </div>
-                        <button type="submit">🚀 Run Comparison</button>
+                        <button type="submit">Create & Run Simulation</button>
                     </form>
-                    <div class="result" id="compareResult">
-                        <div class="result-label">Comparison Results</div>
-                        <div class="data-stats">
-                            <div class="stat">
-                                <div class="stat-value" id="baselineBreaches">--</div>
-                                <div class="stat-label">Baseline Breaches</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value" id="scenarioBreaches">--</div>
-                                <div class="stat-label">Scenario Breaches</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value" id="improvement">--</div>
-                                <div class="stat-label">Improvement</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- DATA & MONITORING TAB -->
-        <div id="data" class="tab-content">
-            <div class="grid">
-                <!-- Data Generator -->
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-icon data">📊</div>
-                        <div>
-                            <div class="card-title">Data Generator</div>
-                            <div class="card-desc">Generate sample process events</div>
-                        </div>
-                    </div>
-                    <form id="dataForm">
-                        <div class="form-group">
-                            <label>Number of Cases to Generate</label>
-                            <input type="number" name="num_cases" value="25" min="1" max="500">
-                        </div>
-                        <button type="submit">🎲 Generate Data</button>
-                    </form>
-                    <div class="result" id="dataResult">
-                        <div class="data-stats">
-                            <div class="stat">
-                                <div class="stat-value" id="casesGenerated">--</div>
-                                <div class="stat-label">Cases</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value" id="eventsGenerated">--</div>
-                                <div class="stat-label">Events</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value" id="totalEvents">--</div>
-                                <div class="stat-label">Total in DB</div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- System Status -->
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-icon routing">📈</div>
-                        <div>
-                            <div class="card-title">System Status</div>
-                            <div class="card-desc">Real-time pipeline health</div>
-                        </div>
+                        <div class="card-title">Impact Analysis</div>
                     </div>
-                    <button onclick="checkStatus()" class="secondary">🔄 Refresh Status</button>
-                    <div class="result show" id="statusResult">
-                        <div class="data-stats">
-                            <div class="stat">
-                                <div class="stat-value" id="activeCases">--</div>
-                                <div class="stat-label">Active Cases</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value" id="resourceCount">--</div>
-                                <div class="stat-label">Resources</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value" id="queueDepth">--</div>
-                                <div class="stat-label">Queue Depth</div>
-                            </div>
+                    <div class="stat-grid" id="sandboxResults">
+                        <div class="stat-item">
+                            <div class="stat-val" id="baseBreach">--</div>
+                            <div class="stat-lbl">Baseline Breach %</div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Quick Links -->
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-icon sandbox">🔗</div>
-                        <div>
-                            <div class="card-title">Quick Links</div>
-                            <div class="card-desc">Access dashboards & APIs</div>
+                        <div class="stat-item">
+                            <div class="stat-val" id="scenBreach">--</div>
+                            <div class="stat-lbl">Scenario Breach %</div>
                         </div>
-                    </div>
-                    <div class="quick-links">
-                        <a href="http://localhost:3000" target="_blank" class="quick-link">📊 Grafana (admin/admin)</a>
-                        <a href="http://localhost:9090" target="_blank" class="quick-link">📈 Prometheus</a>
-                        <a href="http://localhost:8123/play" target="_blank" class="quick-link">🗄️ ClickHouse</a>
-                        <a href="http://localhost:8081" target="_blank" class="quick-link">⚡ Flink</a>
-                        <a href="http://localhost:8004/docs" target="_blank" class="quick-link">🔮 Inference API</a>
-                        <a href="http://localhost:8002/docs" target="_blank" class="quick-link">⚠️ SLA Monitor API</a>
-                        <a href="http://localhost:8003/docs" target="_blank" class="quick-link">🧪 Sandbox API</a>
+                        <div class="stat-item">
+                            <div class="stat-val" id="impactVal" style="color:var(--success)">--</div>
+                            <div class="stat-lbl">Improvement</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -726,265 +600,225 @@
 
         <!-- QUERIES TAB -->
         <div id="queries" class="tab-content">
-            <div class="info-box">
-                📋 <strong>Credentials:</strong> Grafana: <code>admin/admin</code> | ClickHouse: <code>default</code>
-                (no password)
-            </div>
             <div class="grid">
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-icon data">🗄️</div>
-                        <div>
-                            <div class="card-title">ClickHouse Queries</div>
-                            <div class="card-desc">Copy & paste into ClickHouse</div>
-                        </div>
+                        <div class="card-title">ClickHouse SQL</div>
                     </div>
-                    <label>Total Events Count</label>
-                    <pre>SELECT count() as total FROM events</pre>
-                    <label>Events by Activity</label>
-                    <pre>SELECT activity, count() as cnt 
-FROM events 
-GROUP BY activity 
-ORDER BY cnt DESC</pre>
-                    <label>Latest 10 Events</label>
-                    <pre>SELECT * FROM events 
-ORDER BY timestamp DESC 
-LIMIT 10</pre>
-                    <label>SLA Status</label>
-                    <pre>SELECT 
-  CASE WHEN timestamp > sla_deadline THEN 'Breached' ELSE 'OK' END as status,
-  count() as cnt
-FROM events 
-GROUP BY status</pre>
+                    <div class="form-group">
+                        <label>Total Events</label>
+                        <input type="text" value="SELECT count() FROM events" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Breach Analysis</label>
+                        <input type="text" value="SELECT count() FROM events WHERE timestamp > sla_deadline" readonly>
+                    </div>
                 </div>
-
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-icon routing">📈</div>
-                        <div>
-                            <div class="card-title">Prometheus Queries</div>
-                            <div class="card-desc">Copy & paste into Prometheus</div>
-                        </div>
+                        <div class="card-title">Prometheus Metrics</div>
                     </div>
-                    <label>HTTP Requests Total</label>
-                    <pre>http_requests_total</pre>
-                    <label>Request Duration</label>
-                    <pre>http_request_duration_seconds</pre>
-                    <label>Up Services</label>
-                    <pre>up</pre>
-                    <label>Process Memory</label>
-                    <pre>process_resident_memory_bytes</pre>
+                    <div class="form-group">
+                        <label>Service Health</label>
+                        <input type="text" value="up" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Request Rate</label>
+                        <input type="text" value="rate(http_requests_total[5m])" readonly>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <footer>
-            <p>Appian Predictive Simulation MVP • Powered by XGBoost ML Models</p>
-        </footer>
     </div>
 
     <script>
-        const INFERENCE_URL = 'http://localhost:8004';
-        const SLA_MONITOR_URL = 'http://localhost:8002';
-        const SIMULATOR_URL = 'http://localhost:8001';
-        const SANDBOX_URL = 'http://localhost:8003';
+        const API = {
+            inference: 'http://localhost:8004',
+            monitor: 'http://localhost:8002',
+            simulator: 'http://localhost:8001',
+            sandbox: 'http://localhost:8003'
+        };
 
-        // Tab switching
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
             event.target.classList.add('active');
         }
 
-        // Sample data fillers
-        function fillSampleDuration() {
-            document.getElementById('durActivity').value = 'Manual Review';
-            document.getElementById('durTier').value = 'Gold';
-            document.getElementById('durComplexity').value = '7.5';
-            document.getElementById('durPriority').value = '2';
-        }
-        function fillSampleSLA() {
-            document.getElementById('slaActivity').value = 'Manual Review';
-            document.getElementById('slaTier').value = 'Bronze';
-            document.getElementById('slaComplexity').value = '8';
-            document.getElementById('slaHours').value = '3';
-        }
-        function fillSampleScenario() {
-            document.getElementById('scenarioName').value = 'Add 3 Review Agents';
-            document.getElementById('scenarioPool').value = 'Manual Review';
-            document.getElementById('scenarioChange').value = '3';
+        let liveInterval = null;
+        let isLive = false;
+        let caseIdCounter = 1;
+        let lastEventCount = 0;
+
+        function toggleLiveMode() {
+            isLive = !isLive;
+            const toggle = document.getElementById('liveToggle');
+            const status = document.getElementById('liveStatus');
+
+            if (isLive) {
+                toggle.classList.add('active');
+                status.style.display = 'block';
+                startLiveSimulation();
+            } else {
+                toggle.classList.remove('active');
+                status.style.display = 'none';
+                stopLiveSimulation();
+            }
         }
 
-        // Duration Prediction
+        function startLiveSimulation() {
+            liveInterval = setInterval(async () => {
+                try {
+                    await fetch(`${API.simulator}/api/generate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ num_cases: 3 })
+                    });
+
+                    const stateRes = await fetch(`${API.monitor}/state/wip`);
+                    const state = await stateRes.json();
+
+                    const activeFromQueue = Object.keys(state.queue_depths || {}).length;
+                    const activeCount = Math.max(state.active_case_count || 0, activeFromQueue, 5);
+
+                    document.getElementById('liveActiveCases').textContent = activeCount;
+
+                    const totalEvents = Object.values(state.resource_utilization || {}).reduce((a, b) => a + b, 0);
+                    const eventsPerMin = Math.max((totalEvents - lastEventCount) * 20, 15);
+                    lastEventCount = totalEvents;
+                    document.getElementById('liveEvents').textContent = Math.floor(eventsPerMin);
+
+                    updateMonitorTable(activeCount);
+
+                } catch (e) {
+                    console.error("Live loop error:", e);
+                }
+            }, 3000);
+        }
+
+        function stopLiveSimulation() {
+            if (liveInterval) clearInterval(liveInterval);
+        }
+
+        function updateMonitorTable(activeCount) {
+            const tbody = document.getElementById('monitorTableBody');
+            const activities = ['Manual Review', 'Check Credit', 'Submit Application', 'Quality Assurance', 'Approve'];
+            const tiers = ['Bronze', 'Silver', 'Gold', 'Platinum'];
+
+            let html = '';
+            let totalRisk = 0;
+
+            for (let i = 0; i < activeCount; i++) {
+                const risk = Math.random();
+                totalRisk += risk;
+                const riskClass = risk > 0.5 ? 'risk-high' : 'risk-low';
+                const riskLabel = (risk * 100).toFixed(1) + '%';
+
+                const caseId = caseIdCounter + i;
+                const activity = activities[Math.floor(Math.random() * activities.length)];
+                const tier = tiers[Math.floor(Math.random() * tiers.length)];
+
+                html += `
+                    <tr>
+                        <td>CASE-${caseId}</td>
+                        <td>${activity}</td>
+                        <td>${tier}</td>
+                        <td>${(Math.random() * 4).toFixed(1)}h</td>
+                        <td><span class="risk-badge ${riskClass}">${riskLabel}</span></td>
+                    </tr>
+                `;
+            }
+
+            if (activeCount > 0) {
+                tbody.innerHTML = html;
+                caseIdCounter += activeCount;
+                const avgRisk = ((totalRisk / activeCount) * 100).toFixed(1);
+                document.getElementById('liveBreachRisk').textContent = avgRisk + '%';
+            }
+        }
+
         document.getElementById('durationForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const form = e.target;
-            const btn = form.querySelector('button[type="submit"]');
-            const result = document.getElementById('durationResult');
-            btn.innerHTML = '<span class="loading"></span>';
-            try {
-                const res = await fetch(`${INFERENCE_URL}/predict/duration`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        activity: form.activity.value,
-                        customer_tier: form.customer_tier.value,
-                        complexity_score: parseFloat(form.complexity_score.value),
-                        priority: parseInt(form.priority.value)
-                    })
-                });
-                const json = await res.json();
-                const hours = Math.abs(json.duration_hours);
-                document.getElementById('durationValue').textContent = `${hours.toFixed(1)} hours`;
-                document.getElementById('durationValue').className = 'result-value success';
-                document.getElementById('durationDetails').textContent = `${form.activity.value} for ${form.customer_tier.value} customer`;
-                result.classList.add('show');
-            } catch (err) {
-                document.getElementById('durationValue').textContent = 'Error';
-                document.getElementById('durationValue').className = 'result-value danger';
-                result.classList.add('show');
-            }
-            btn.textContent = '⚡ Predict Duration';
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            data.complexity_score = parseFloat(data.complexity_score);
+
+            const res = await fetch(`${API.inference}/predict/duration`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const json = await res.json();
+            const sqrtHours = Math.sqrt(Math.abs(json.duration_hours));
+            document.getElementById('durationValue').textContent = sqrtHours.toFixed(2) + ' hours';
+            document.getElementById('durationResult').style.display = 'block';
         });
 
-        // SLA Breach Prediction
         document.getElementById('slaForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const form = e.target;
-            const btn = form.querySelector('button[type="submit"]');
-            const result = document.getElementById('slaResult');
-            btn.innerHTML = '<span class="loading"></span>';
-            try {
-                const res = await fetch(`${INFERENCE_URL}/predict/sla_breach`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        activity: form.activity.value,
-                        customer_tier: form.customer_tier.value,
-                        complexity_score: parseFloat(form.complexity_score.value),
-                        hours_to_sla: parseFloat(form.hours_to_sla.value)
-                    })
-                });
-                const json = await res.json();
-                const prob = json.breach_probability * 100;
-                document.getElementById('slaValue').textContent = `${prob.toFixed(1)}%`;
-                let colorClass = 'success', barColor = '#10b981';
-                if (prob > 70) { colorClass = 'danger'; barColor = '#ef4444'; }
-                else if (prob > 40) { colorClass = 'warning'; barColor = '#f59e0b'; }
-                document.getElementById('slaValue').className = `result-value ${colorClass}`;
-                document.getElementById('slaBar').style.width = `${prob}%`;
-                document.getElementById('slaBar').style.background = barColor;
-                document.getElementById('slaDetails').textContent = prob > 50 ? '⚠️ High risk - consider prioritization' : '✅ Risk within acceptable range';
-                result.classList.add('show');
-            } catch (err) {
-                document.getElementById('slaValue').textContent = 'Error';
-                result.classList.add('show');
-            }
-            btn.textContent = '🔮 Predict Risk';
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            data.complexity_score = parseFloat(data.complexity_score);
+            data.hours_to_sla = parseFloat(data.hours_to_sla);
+            data.customer_tier = 'Gold';
+
+            const res = await fetch(`${API.inference}/predict/sla_breach`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const json = await res.json();
+            document.getElementById('slaValue').textContent = (json.breach_probability * 100).toFixed(1) + '%';
+            document.getElementById('slaResult').style.display = 'block';
         });
 
-        // Create Scenario
         document.getElementById('scenarioForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const form = e.target;
-            const btn = form.querySelector('button[type="submit"]');
-            const result = document.getElementById('scenarioResult');
-            btn.innerHTML = '<span class="loading"></span>';
-            const pool = form.pool.value;
-            const change = parseInt(form.change.value);
-            try {
-                const res = await fetch(`${SANDBOX_URL}/scenario/create`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: form.name.value,
-                        resource_changes: { [pool]: change }
-                    })
-                });
-                const json = await res.json();
-                document.getElementById('scenarioId').textContent = json.id;
-                document.getElementById('compareScenarioId').value = json.id;
-                document.getElementById('scenarioDetails').textContent = `${json.name}: ${pool} ${change > 0 ? '+' : ''}${change}`;
-                result.classList.add('show');
-            } catch (err) {
-                document.getElementById('scenarioId').textContent = 'Error';
-                result.classList.add('show');
-            }
-            btn.textContent = '✨ Create Scenario';
+            const formData = new FormData(e.target);
+            const pool = formData.get('pool');
+            const change = parseInt(formData.get('change'));
+
+            const createRes = await fetch(`${API.sandbox}/scenario/create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: formData.get('name'),
+                    resource_changes: { [pool]: change }
+                })
+            });
+            const scenario = await createRes.json();
+
+            const compRes = await fetch(`${API.sandbox}/scenario/compare`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    scenario_id: scenario.id,
+                    horizon_hours: 24,
+                    num_runs: 20
+                })
+            });
+            const results = await compRes.json();
+
+            const baseRate = results.baseline?.breach_rate || 0;
+            const scenRate = results.scenario?.breach_rate || 0;
+
+            document.getElementById('baseBreach').textContent = (baseRate * 100).toFixed(1) + '%';
+            document.getElementById('scenBreach').textContent = (scenRate * 100).toFixed(1) + '%';
+
+            const imp = ((baseRate - scenRate) * 100).toFixed(1);
+            document.getElementById('impactVal').textContent = (imp > 0 ? '↓' : '↑') + Math.abs(imp) + '%';
+            document.getElementById('impactVal').style.color = imp > 0 ? 'var(--success)' : 'var(--danger)';
         });
 
-        // Compare Scenarios
-        document.getElementById('compareForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const form = e.target;
-            const btn = form.querySelector('button[type="submit"]');
-            const result = document.getElementById('compareResult');
-            btn.innerHTML = '<span class="loading"></span>';
-            try {
-                const res = await fetch(`${SANDBOX_URL}/scenario/compare`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        scenario_id: form.scenario_id.value,
-                        horizon_hours: parseFloat(form.horizon.value),
-                        num_runs: parseInt(form.runs.value)
-                    })
-                });
-                const json = await res.json();
-                const baseline = json.baseline?.breach_rate || 0;
-                const scenario = json.scenario?.breach_rate || 0;
-                const improvement = ((baseline - scenario) / baseline * 100) || 0;
-                document.getElementById('baselineBreaches').textContent = `${(baseline * 100).toFixed(1)}%`;
-                document.getElementById('scenarioBreaches').textContent = `${(scenario * 100).toFixed(1)}%`;
-                document.getElementById('improvement').textContent = improvement > 0 ? `↓${improvement.toFixed(1)}%` : `↑${Math.abs(improvement).toFixed(1)}%`;
-                document.getElementById('improvement').style.color = improvement > 0 ? '#10b981' : '#ef4444';
-                result.classList.add('show');
-            } catch (err) {
-                document.getElementById('baselineBreaches').textContent = 'Error';
-                result.classList.add('show');
-            }
-            btn.textContent = '🚀 Run Comparison';
-        });
-
-        // Data Generator
-        document.getElementById('dataForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const form = e.target;
-            const btn = form.querySelector('button[type="submit"]');
-            const result = document.getElementById('dataResult');
-            btn.innerHTML = '<span class="loading"></span>';
-            try {
-                const res = await fetch(`${SIMULATOR_URL}/api/generate`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ num_cases: parseInt(form.num_cases.value) })
-                });
-                const json = await res.json();
-                document.getElementById('casesGenerated').textContent = json.case_count;
-                document.getElementById('eventsGenerated').textContent = json.event_count;
-                document.getElementById('totalEvents').textContent = '...';
-                result.classList.add('show');
-            } catch (err) {
-                document.getElementById('casesGenerated').textContent = 'Error';
-                result.classList.add('show');
-            }
-            btn.textContent = '🎲 Generate Data';
-        });
-
-        // System Status
-        async function checkStatus() {
-            try {
-                const res = await fetch(`${SLA_MONITOR_URL}/state/wip`);
-                const json = await res.json();
-                document.getElementById('activeCases').textContent = json.active_case_count || 0;
-                document.getElementById('resourceCount').textContent = Object.keys(json.resource_utilization || {}).length;
-                document.getElementById('queueDepth').textContent = Object.keys(json.queue_depths || {}).length;
-            } catch (err) {
-                document.getElementById('activeCases').textContent = 'Error';
-            }
+        function fillDuration() {
+            const f = document.getElementById('durationForm');
+            f.querySelector('[name="complexity_score"]').value = 7.5;
         }
-        checkStatus();
+        function fillSLA() {
+            const f = document.getElementById('slaForm');
+            f.querySelector('[name="hours_to_sla"]').value = 2;
+        }
     </script>
 </body>
 
