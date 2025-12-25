@@ -19,6 +19,9 @@ A process mining and predictive simulation platform for Appian workflows. Uses M
 ## Quick Start
 
 ```bash
+# 0. Copy env.example to .env
+cp env.example .env
+
 # 1. Start all services
 docker compose up -d --build
 
