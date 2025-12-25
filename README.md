@@ -2,6 +2,20 @@
 
 A process mining and predictive simulation platform for Appian workflows. Uses ML to predict activity durations, next activities, and SLA breach risks with real-time event streaming.
 
+## 📚 Documentation
+
+**📖 [Complete Documentation (PDF)](docs/documentation.pdf)** - 30-page comprehensive guide covering:
+- System Architecture & Design
+- Machine Learning Models
+- API Reference
+- Installation & Deployment
+- Troubleshooting & Best Practices
+
+For architecture diagrams, see:
+- [Complete Architecture](docs/Complete_Arch.png)
+- [MVP Architecture](docs/MVP_Arch.png)
+- [Hackathon Plan](docs/Appian%20Predictive%20Simulation%20Hackathon%20Plan.pdf)
+
 ## 🏗️ Architecture
 
 ```
