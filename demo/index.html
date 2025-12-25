@@ -601,30 +601,34 @@
         <!-- QUERIES TAB -->
         <div id="queries" class="tab-content">
             <div class="grid">
-                <div class="card">
+                <div class="card" style="grid-column: span 2;">
                     <div class="card-header">
-                        <div class="card-title">ClickHouse SQL</div>
+                        <div>
+                            <div class="card-title">ClickHouse Query Executor</div>
+                            <div class="card-desc">Run SQL queries against the events database</div>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label>Total Events</label>
-                        <input type="text" value="SELECT count() FROM events" readonly>
+                        <label>SQL Query</label>
+                        <textarea id="sqlQuery"
+                            style="width:100%; min-height:120px; background:var(--bg-input); border:1px solid var(--border); color:var(--text-main); padding:0.75rem; border-radius:6px; font-family:monospace; font-size:0.85rem; resize:vertical;">SELECT count() as total_events FROM events</textarea>
                     </div>
-                    <div class="form-group">
-                        <label>Breach Analysis</label>
-                        <input type="text" value="SELECT count() FROM events WHERE timestamp > sla_deadline" readonly>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+                        <button onclick="runQuery()">Execute Query</button>
+                        <button class="secondary" onclick="loadSampleQuery('total')">Total Events</button>
+                        <button class="secondary" onclick="loadSampleQuery('active')">Active Cases</button>
                     </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Prometheus Metrics</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+                        <button class="secondary" onclick="loadSampleQuery('breaches')">SLA Breaches</button>
+                        <button class="secondary" onclick="loadSampleQuery('queue')">Queue Depths</button>
+                        <button class="secondary" onclick="loadSampleQuery('recent')">Recent Events</button>
                     </div>
-                    <div class="form-group">
-                        <label>Service Health</label>
-                        <input type="text" value="up" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>Request Rate</label>
-                        <input type="text" value="rate(http_requests_total[5m])" readonly>
+
+                    <div id="queryResults" class="result-box" style="display:none; max-height:400px; overflow:auto;">
+                        <div style="margin-bottom:0.75rem; color:var(--text-muted); font-size:0.85rem;">
+                            <span id="queryStatus"></span>
+                        </div>
+                        <div id="queryResultsTable"></div>
                     </div>
                 </div>
             </div>
@@ -826,6 +830,130 @@
             const f = document.getElementById('slaForm');
             f.querySelector('[name="hours_to_sla"]').value = 2;
         }
+
+        // ClickHouse Query Functions
+        const sampleQueries = {
+            total: 'SELECT count() as total_events FROM events',
+            active: `SELECT case_id, activity, status, timestamp 
+FROM events 
+WHERE case_id NOT IN (
+    SELECT case_id FROM events 
+    WHERE activity IN ('Approve', 'Reject') AND status = 'COMPLETED'
+)
+ORDER BY timestamp DESC
+LIMIT 10`,
+            breaches: `SELECT 
+    case_id,
+    activity,
+    timestamp,
+    sla_deadline,
+    dateDiff('hour', timestamp, sla_deadline) as hours_remaining
+FROM events
+WHERE timestamp > sla_deadline
+LIMIT 20`,
+            queue: `SELECT 
+    activity, 
+    count() as queue_depth
+FROM events
+WHERE status = 'ASSIGNED'
+GROUP BY activity
+ORDER BY queue_depth DESC`,
+            recent: `SELECT 
+    event_id,
+    case_id,
+    activity,
+    status,
+    timestamp,
+    resource
+FROM events
+ORDER BY timestamp DESC
+LIMIT 20`
+        };
+
+        function loadSampleQuery(type) {
+            document.getElementById('sqlQuery').value = sampleQueries[type];
+        }
+
+        async function runQuery() {
+            const query = document.getElementById('sqlQuery').value.trim();
+            if (!query) {
+                alert('Please enter a SQL query');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('queryResults');
+            const statusSpan = document.getElementById('queryStatus');
+            const tableDiv = document.getElementById('queryResultsTable');
+
+            resultsDiv.style.display = 'block';
+            statusSpan.textContent = '⏳ Executing query...';
+            tableDiv.innerHTML = '';
+
+            try {
+                // Execute query via proxy endpoint
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query: query + ' FORMAT JSONCompact' })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                }
+
+                const result = await response.json();
+
+                // Display results
+                if (result.data && result.data.length > 0) {
+                    statusSpan.textContent = `✓ Query executed successfully (${result.data.length} rows)`;
+
+                    // Create table
+                    let html = '<table class="monitor-table" style="font-size:0.8rem;">';
+
+                    // Header
+                    html += '<thead><tr>';
+                    result.meta.forEach(col => {
+                        html += `<th>${col.name}</th>`;
+                    });
+                    html += '</tr></thead>';
+
+                    // Rows
+                    html += '<tbody>';
+                    result.data.forEach(row => {
+                        html += '<tr>';
+                        row.forEach(cell => {
+                            html += `<td>${cell !== null ? cell : 'NULL'}</td>`;
+                        });
+                        html += '</tr>';
+                    });
+                    html += '</tbody></table>';
+
+                    tableDiv.innerHTML = html;
+                } else {
+                    statusSpan.textContent = '✓ Query executed (no results)';
+                    tableDiv.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:1rem;">No data returned</p>';
+                }
+            } catch (error) {
+                statusSpan.textContent = '✗ Query failed';
+                tableDiv.innerHTML = `<div style="color:var(--danger); padding:1rem; background:rgba(239,68,68,0.1); border-radius:6px; font-family:monospace; font-size:0.8rem;">${error.message}</div>`;
+                console.error('Query error:', error);
+            }
+        }
+
+        // Allow Enter key to execute query (Ctrl+Enter)
+        document.addEventListener('DOMContentLoaded', () => {
+            const queryTextarea = document.getElementById('sqlQuery');
+            if (queryTextarea) {
+                queryTextarea.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        e.preventDefault();
+                        runQuery();
+                    }
+                });
+            }
+        });
     </script>
 </body>
 
