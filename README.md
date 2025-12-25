@@ -10,12 +10,7 @@ A process mining and predictive simulation platform for Appian workflows. Uses M
 - API Reference
 - Installation & Deployment
 - Troubleshooting & Best Practices
-
-For architecture diagrams, see:
-- [Complete Architecture](docs/Complete_Arch.png)
-- [MVP Architecture](docs/MVP_Arch.png)
-- [Hackathon Plan](docs/Appian%20Predictive%20Simulation%20Hackathon%20Plan.pdf)
-
+  
 ## 🏗️ Architecture
 
 ```
