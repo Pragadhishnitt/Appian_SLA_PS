@@ -29,6 +29,32 @@ forecast_latency = Histogram(
     'Forecast request latency'
 )
 
+events_consumed = Counter(
+    'events_consumed_total',
+    'Total events consumed from Kafka'
+)
+
+clickhouse_query_duration = Histogram(
+    'clickhouse_query_duration_seconds',
+    'ClickHouse query execution time',
+    buckets=[0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.0]
+)
+
+active_alerts = Gauge(
+    'active_alerts',
+    'Number of active alerts'
+)
+
+sla_breaches_predicted = Counter(
+    'sla_breaches_predicted_total',
+    'Total number of SLA breaches predicted'
+)
+
+active_case_count = Gauge(
+    'active_case_count',
+    'Number of active cases being monitored'
+)
+
 def update_queue_metrics(depths: dict):
     """Update queue depth metrics"""
     for activity, depth in depths.items():

@@ -8,7 +8,10 @@ import asyncio
 from app.monitor import WIPMonitor
 from app.forecaster import SLAForecaster
 from app.bottleneck import BottleneckDetector
-from app.metrics import get_metrics, get_content_type, update_queue_metrics, update_utilization_metrics
+from app.metrics import (
+    get_metrics, get_content_type, update_queue_metrics, update_utilization_metrics,
+    active_case_count, sla_breaches_predicted, active_alerts
+)
 from app.consumer import EventConsumer
 
 app = FastAPI(title="SLA Monitor Service")
@@ -50,6 +53,10 @@ async def forecast_breaches(hours: int = 24):
         return {"breaches": [], "message": "No active cases"}
     
     breaches = await forecaster.forecast_breaches(active_cases, hours)
+    
+    # Update metrics
+    sla_breaches_predicted.inc(len(breaches))
+    
     return {
         "horizon_hours": hours,
         "total_active_cases": len(active_cases['case_id'].unique()),
@@ -100,6 +107,9 @@ async def get_active_alerts():
             "details": bn
         })
     
+    # Update metrics
+    active_alerts.set(len(alerts))
+    
     return {"alerts": alerts}
 
 @app.get("/state/wip")
@@ -112,8 +122,12 @@ def get_wip_state():
     update_queue_metrics(queue_depths)
     update_utilization_metrics(utilization)
     
+    # Update active case count metric
+    case_count = len(active_cases['case_id'].unique()) if not active_cases.empty else 0
+    active_case_count.set(case_count)
+    
     return {
-        "active_case_count": len(active_cases['case_id'].unique()) if not active_cases.empty else 0,
+        "active_case_count": case_count,
         "queue_depths": queue_depths,
         "resource_utilization": utilization
     }

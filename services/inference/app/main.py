@@ -1,9 +1,14 @@
 import os
-from fastapi import FastAPI, HTTPException
+import time
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel as PydanticModel
 from typing import Dict, Any, Optional
 from app.registry import ModelRegistry
+from app.metrics import (
+    inference_requests, inference_duration, model_load_time,
+    prediction_errors, get_metrics, get_content_type
+)
 
 app = FastAPI(title="Inference Service")
 
@@ -42,6 +47,11 @@ async def startup():
 def health_check():
     return {"status": "healthy", "registry_loaded": registry is not None}
 
+@app.get("/metrics")
+def prometheus_metrics():
+    """Prometheus metrics endpoint"""
+    return Response(content=get_metrics(), media_type=get_content_type())
+
 @app.get("/models")
 def list_models():
     """List all available models"""
@@ -76,40 +86,70 @@ def predict_duration(features: Dict[str, Any]):
     """Predict activity duration"""
     if not registry:
         raise HTTPException(status_code=503, detail="Registry not loaded")
-    result = registry.predict("duration_predictor", features)
-    return {"duration_hours": float(result[0]) if hasattr(result, '__getitem__') else float(result)}
+    
+    model_name = "duration_predictor"
+    inference_requests.labels(model_name=model_name).inc()
+    
+    try:
+        start_time = time.time()
+        result = registry.predict(model_name, features)
+        inference_duration.labels(model_name=model_name).observe(time.time() - start_time)
+        return {"duration_hours": float(result[0]) if hasattr(result, '__getitem__') else float(result)}
+    except Exception as e:
+        prediction_errors.labels(model_name=model_name, error_type=type(e).__name__).inc()
+        raise
 
 @app.post("/predict/routing")
 def predict_routing(features: Dict[str, Any]):
     """Predict next activity"""
     if not registry:
         raise HTTPException(status_code=503, detail="Registry not loaded")
-    result = registry.predict("routing_predictor", features)
     
-    # Routing model returns probability array for each class
-    # Get the predicted class (argmax) and decode to activity name
-    import numpy as np
-    ACTIVITY_NAMES = ["Submit Application", "Check Credit", "Manual Review", 
-                      "Quality Assurance", "Approve", "Reject"]
+    model_name = "routing_predictor"
+    inference_requests.labels(model_name=model_name).inc()
     
-    if hasattr(result, '__len__') and len(result) > 1:
-        # Multi-class: result is array of probabilities
-        predicted_class = int(np.argmax(result))
-        predicted_activity = ACTIVITY_NAMES[predicted_class] if predicted_class < len(ACTIVITY_NAMES) else f"Class_{predicted_class}"
-        probabilities = [float(p) for p in result]
-        return {
-            "next_activity": predicted_activity,
-            "predicted_class": predicted_class,
-            "probabilities": probabilities
-        }
-    else:
-        # Single value
-        return {"next_activity": int(result[0]) if hasattr(result, '__getitem__') else int(result)}
+    try:
+        start_time = time.time()
+        result = registry.predict(model_name, features)
+        inference_duration.labels(model_name=model_name).observe(time.time() - start_time)
+        
+        # Routing model returns probability array for each class
+        # Get the predicted class (argmax) and decode to activity name
+        import numpy as np
+        ACTIVITY_NAMES = ["Submit Application", "Check Credit", "Manual Review", 
+                          "Quality Assurance", "Approve", "Reject"]
+        
+        if hasattr(result, '__len__') and len(result) > 1:
+            # Multi-class: result is array of probabilities
+            predicted_class = int(np.argmax(result))
+            predicted_activity = ACTIVITY_NAMES[predicted_class] if predicted_class < len(ACTIVITY_NAMES) else f"Class_{predicted_class}"
+            probabilities = [float(p) for p in result]
+            return {
+                "next_activity": predicted_activity,
+                "predicted_class": predicted_class,
+                "probabilities": probabilities
+            }
+        else:
+            # Single value
+            return {"next_activity": int(result[0]) if hasattr(result, '__getitem__') else int(result)}
+    except Exception as e:
+        prediction_errors.labels(model_name=model_name, error_type=type(e).__name__).inc()
+        raise
 
 @app.post("/predict/sla_breach")
 def predict_sla_breach(features: Dict[str, Any]):
     """Predict SLA breach probability"""
     if not registry:
         raise HTTPException(status_code=503, detail="Registry not loaded")
-    result = registry.predict("sla_breach_predictor", features)
-    return {"breach_probability": float(result[0]) if hasattr(result, '__getitem__') else float(result)}
+    
+    model_name = "sla_breach_predictor"
+    inference_requests.labels(model_name=model_name).inc()
+    
+    try:
+        start_time = time.time()
+        result = registry.predict(model_name, features)
+        inference_duration.labels(model_name=model_name).observe(time.time() - start_time)
+        return {"breach_probability": float(result[0]) if hasattr(result, '__getitem__') else float(result)}
+    except Exception as e:
+        prediction_errors.labels(model_name=model_name, error_type=type(e).__name__).inc()
+        raise

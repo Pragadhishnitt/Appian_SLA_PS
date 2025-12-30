@@ -4,7 +4,7 @@ services:
   # ---------------------------------------------------------------------------
   # INFRASTRUCTURE
   # ---------------------------------------------------------------------------
-  
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
     hostname: zookeeper
@@ -23,7 +23,6 @@ services:
       - zookeeper
     ports:
       - "29092:29092"
-      - "9093:9093"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -76,20 +75,31 @@ services:
     image: prom/prometheus
     container_name: prometheus
     ports:
-      - "9090:9090"
+      - "9990:9090"
     volumes:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - sla-monitor
+      - data-simulator
+      - inference
+      - simulation-sandbox
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3000:3000"
+      - "9991:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=grafana-clickhouse-datasource
     volumes:
       - ./config/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./config/grafana/dashboards/dashboard-provisioning.yml:/etc/grafana/provisioning/dashboards/dashboard-provisioning.yml
       - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - clickhouse
 
   # ---------------------------------------------------------------------------
   # APPLICATION SERVICES
@@ -163,3 +173,4 @@ services:
 
 volumes:
   clickhouse_data:
+  grafana_data:

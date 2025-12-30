@@ -79,6 +79,8 @@ class EventConsumer:
                 for topic_partition, records in messages.items():
                     for record in records:
                         self._insert_event(record.value)
+                        from app.metrics import events_consumed
+                        events_consumed.inc()
                         
             except Exception as e:
                 print(f"EventConsumer error: {e}")

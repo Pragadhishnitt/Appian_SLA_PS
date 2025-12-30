@@ -68,6 +68,8 @@ python3 server.py
 | **ClickHouse** | 8123 | ✅ Active | Event storage & analytics database |
 | **Kafka** | 29092 | ✅ Active | Event streaming platform |
 | **Demo UI** | 8090 | ✅ Active | Interactive dashboard with ClickHouse query executor |
+| **Prometheus** | 9090 | ✅ Active | Metrics collection and monitoring |
+| **Grafana** | 3000 | ✅ Active | Visualization dashboards (admin/admin) |
 
 ## 🎯 Key Features
 
@@ -445,15 +447,85 @@ curl http://localhost:8004/health  # Inference
 
 ## 📊 Metrics & Monitoring
 
-The SLA Monitor exposes Prometheus metrics at `/metrics`:
+### Grafana Dashboards
+
+Access Grafana at **http://localhost:3000** (credentials: `admin/admin`)
+
+Four pre-configured dashboards are automatically provisioned:
+
+#### 1. System Overview
+- Service health status indicators (all 4 microservices)
+- Real-time event flow rate (generated vs consumed)
+- Active cases gauge
+- Average SLA breach risk meter
+- Queue depths by activity (bottleneck detection)
+- Resource utilization heatmap
+
+#### 2. Service Metrics
+- API request rates per service
+- Response time percentiles (P50, P95, P99)
+- ML inference breakdown by model type
+- Prediction error rates
+- Kafka and ClickHouse latency metrics
+
+#### 3. Process Mining Analytics (ClickHouse)
+- Average activity duration charts
+- Activity frequency analysis
+- Case completion statistics
+- Approval rate gauge
+- SLA breach counts
+- Recent events table
+- Custom SQL query panel
+
+#### 4. SLA Breach Monitoring
+- Active alerts counter
+- Predicted breaches tracker
+- High-risk cases table (>50% breach probability)
+- Real-time bottleneck detection
+- SLA breach risk timeline
+- Resource pool utilization trends
+
+### Prometheus Metrics
+
+All services expose metrics at `/metrics`:
 
 ```bash
-curl http://localhost:8002/metrics
+# View metrics from each service
+curl http://localhost:8001/metrics  # Data Simulator
+curl http://localhost:8002/metrics  # SLA Monitor
+curl http://localhost:8003/metrics  # Simulation Sandbox
+curl http://localhost:8004/metrics  # Inference
+
+# Access Prometheus UI
+open http://localhost:9090
 ```
 
-Key metrics:
-- `queue_depth{activity="Manual Review"}` - Queue size per activity
-- `resource_utilization{resource="Agent_007"}` - Utilization per agent
+#### Key Metrics by Service
+
+**Data Simulator:**
+- `data_generation_requests_total` - Total generation requests
+- `events_generated_total` - Events created
+- `cases_generated_total` - Cases created
+- `kafka_publish_duration_seconds` - Kafka publish latency
+
+**SLA Monitor:**
+- `queue_depth{activity}` - Queue size per activity
+- `resource_utilization{pool}` - Resource pool usage
+- `sla_breach_probability{case_id,tier}` - Breach risk per case
+- `active_case_count` - Current WIP cases
+- `active_alerts` - Number of active alerts
+- `events_consumed_total` - Events consumed from Kafka
+
+**Inference Service:**
+- `inference_requests_total{model_name}` - Requests by model
+- `inference_duration_seconds{model_name}` - Prediction latency
+- `prediction_errors_total{model_name}` - Failed predictions
+- `model_load_time_seconds{model_name}` - Model initialization time
+
+**Simulation Sandbox:**
+- `simulation_runs_total` - Total simulations executed
+- `simulation_duration_seconds` - Simulation runtime
+- `active_scenarios` - Current scenarios in memory
 
 ## 🔐 Security Notes
 

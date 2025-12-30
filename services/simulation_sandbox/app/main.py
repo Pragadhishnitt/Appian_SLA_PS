@@ -1,5 +1,5 @@
-import os
-from fastapi import FastAPI, HTTPException
+import time
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
@@ -9,6 +9,10 @@ from app.state_manager import StateManager
 from app.simulator import ProcessSimulator, SimulationConfig
 from app.scenario import ScenarioBuilder, Scenario
 from app.comparator import ScenarioComparator
+from app.metrics import (
+    simulation_runs, simulation_duration, active_scenarios,
+    get_metrics, get_content_type
+)
 
 app = FastAPI(title="Simulation Sandbox Service")
 
@@ -51,6 +55,12 @@ async def startup():
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "service": "simulation-sandbox"}
+
+@app.get("/metrics")
+def prometheus_metrics():
+    """Prometheus metrics endpoint"""
+    active_scenarios.set(len(scenario_builder.list_scenarios()))
+    return Response(content=get_metrics(), media_type=get_content_type())
 
 @app.get("/state/snapshot")
 def get_state_snapshot():
@@ -133,12 +143,17 @@ def run_simulation(request: SimulationRequest):
                 )
         
         # Run simulation
+        simulation_runs.inc()
+        start_time = time.time()
+        
         simulator = ProcessSimulator(config)
         results = simulator.run_simulation(
             initial_cases=initial_cases,
             horizon_hours=request.horizon_hours,
             num_runs=request.num_runs
         )
+        
+        simulation_duration.observe(time.time() - start_time)
         
         return {
             "scenario_id": request.scenario_id,
