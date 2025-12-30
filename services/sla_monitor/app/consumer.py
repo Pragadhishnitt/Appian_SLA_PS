@@ -5,6 +5,7 @@ from kafka import KafkaConsumer
 from clickhouse_driver import Client
 from datetime import datetime
 from typing import Dict, Any
+from app.metrics import events_consumed
 
 class EventConsumer:
     """Consumes events from Kafka and writes to ClickHouse"""
@@ -30,10 +31,10 @@ class EventConsumer:
                 value_deserializer=lambda x: json.loads(x.decode('utf-8'))
             )
             self.ch_client = Client(host=self.ch_host)
-            print(f"EventConsumer connected to Kafka at {self.kafka_servers} and ClickHouse at {self.ch_host}")
+            print(f"EventConsumer connected to Kafka at {self.kafka_servers} and ClickHouse at {self.ch_host}", flush=True)
             return True
         except Exception as e:
-            print(f"EventConsumer failed to connect: {e}")
+            print(f"EventConsumer failed to connect: {e}", flush=True)
             return False
     
     def _parse_timestamp(self, ts_str: str) -> datetime:
@@ -68,22 +69,21 @@ class EventConsumer:
     
     def _consume_loop(self):
         """Main consumer loop"""
-        print("EventConsumer: Starting consume loop...")
-        batch = []
-        batch_size = 100
+        print("EventConsumer: Starting consume loop...", flush=True)
         
         while self.running:
             try:
                 # Poll with timeout
                 messages = self.consumer.poll(timeout_ms=1000)
+                if messages:
+                    print(f"EventConsumer: Received {sum(len(r) for r in messages.values())} messages", flush=True)
                 for topic_partition, records in messages.items():
                     for record in records:
                         self._insert_event(record.value)
-                        from app.metrics import events_consumed
                         events_consumed.inc()
                         
             except Exception as e:
-                print(f"EventConsumer error: {e}")
+                print(f"EventConsumer error: {e}", flush=True)
     
     def start(self):
         """Start consuming in background thread"""
@@ -94,7 +94,7 @@ class EventConsumer:
         self.running = True
         self._thread = threading.Thread(target=self._consume_loop, daemon=True)
         self._thread.start()
-        print("EventConsumer: Background consumer started")
+        print("EventConsumer: Background consumer started", flush=True)
         return True
     
     def stop(self):

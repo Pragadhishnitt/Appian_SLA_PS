@@ -111,28 +111,47 @@ def predict_routing(features: Dict[str, Any]):
     try:
         start_time = time.time()
         result = registry.predict(model_name, features)
+        print(f"DEBUG: routing result type: {type(result)}", flush=True)
+        print(f"DEBUG: routing result: {result}", flush=True)
         inference_duration.labels(model_name=model_name).observe(time.time() - start_time)
         
-        # Routing model returns probability array for each class
-        # Get the predicted class (argmax) and decode to activity name
-        import numpy as np
         ACTIVITY_NAMES = ["Submit Application", "Check Credit", "Manual Review", 
                           "Quality Assurance", "Approve", "Reject"]
         
-        if hasattr(result, '__len__') and len(result) > 1:
-            # Multi-class: result is array of probabilities
-            predicted_class = int(np.argmax(result))
-            predicted_activity = ACTIVITY_NAMES[predicted_class] if predicted_class < len(ACTIVITY_NAMES) else f"Class_{predicted_class}"
-            probabilities = [float(p) for p in result]
+        import numpy as np
+        if isinstance(result, np.ndarray):
+            if result.ndim > 1:
+                probs = result[0].tolist()
+                pred_idx = int(np.argmax(result[0]))
+            else:
+                probs = result.tolist()
+                pred_idx = int(np.argmax(result))
+            
+            if len(probs) > 1:
+                return {
+                    "next_activity": str(ACTIVITY_NAMES[pred_idx]) if pred_idx < len(ACTIVITY_NAMES) else f"Class_{pred_idx}",
+                    "predicted_class": pred_idx,
+                    "probabilities": [float(p) for p in probs]
+                }
+            else:
+                pred_idx = int(probs[0])
+                return {
+                    "next_activity": str(ACTIVITY_NAMES[pred_idx]) if pred_idx < len(ACTIVITY_NAMES) else f"Class_{pred_idx}",
+                    "predicted_class": pred_idx
+                }
+        
+        # Fallback for non-numpy
+        val = result[0] if hasattr(result, '__getitem__') else result
+        try:
+            pred_idx = int(val)
             return {
-                "next_activity": predicted_activity,
-                "predicted_class": predicted_class,
-                "probabilities": probabilities
+                "next_activity": str(ACTIVITY_NAMES[pred_idx]) if 0 <= pred_idx < len(ACTIVITY_NAMES) else str(pred_idx),
+                "predicted_class": pred_idx
             }
-        else:
-            # Single value
-            return {"next_activity": int(result[0]) if hasattr(result, '__getitem__') else int(result)}
+        except:
+            return {"next_activity": str(val)}
     except Exception as e:
+        print(f"ERROR in predict_routing: {e}", flush=True)
         prediction_errors.labels(model_name=model_name, error_type=type(e).__name__).inc()
         raise
 
