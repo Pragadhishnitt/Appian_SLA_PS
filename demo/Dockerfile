@@ -3,4 +3,4 @@ FROM python:3.9-slim
 WORKDIR /app
 COPY . .
 
-CMD ["python", "-m", "http.server", "8088"]
+CMD ["python", "server.py"]

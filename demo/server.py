@@ -6,7 +6,7 @@ import json
 import urllib.request
 import urllib.error
 
-PORT = 8090
+PORT = 8088
 
 class CORSRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -28,8 +28,9 @@ class CORSRequestHandler(http.server.SimpleHTTPRequestHandler):
                 data = json.loads(post_data)
                 query = data.get('query', '')
                 
-                # Forward to ClickHouse
-                req = urllib.request.Request('http://localhost:8123/', 
+                # Forward to ClickHouse (connected via Docker network)
+                clickhouse_host = "clickhouse"
+                req = urllib.request.Request(f'http://{clickhouse_host}:8123/', 
                                             data=query.encode(), 
                                             method='POST')
                 req.add_header('Content-Type', 'text/plain')

@@ -72,6 +72,13 @@ class EventConsumer:
         print("EventConsumer: Starting consume loop...", flush=True)
         
         while self.running:
+            if not self.consumer:
+                print("EventConsumer: Kafka consumer not initialized, attempting to connect...", flush=True)
+                if not self.connect():
+                    import time
+                    time.sleep(5)
+                    continue
+
             try:
                 # Poll with timeout
                 messages = self.consumer.poll(timeout_ms=1000)
@@ -84,6 +91,9 @@ class EventConsumer:
                         
             except Exception as e:
                 print(f"EventConsumer error: {e}", flush=True)
+                # If it's a connection error, reset consumer to trigger reconnect
+                if "NoBrokersAvailable" in str(e):
+                    self.consumer = None
     
     def start(self):
         """Start consuming in background thread"""
